@@ -1,0 +1,69 @@
+#!/bin/sh
+set -eu
+
+CONF=/home/root/.config/remarkable/xochitl.conf
+ROOT=/home/root/sleepScreens
+OUT="$ROOT/.chosen"
+PID=/tmp/random-sleep-screen-picker.pid
+INTERVAL=2
+
+read_folder() {
+    if [ ! -f "$CONF" ]; then
+        printf '\n'
+        return
+    fi
+
+    awk '
+        /^\[ingatellentConfiguration\]$/ { in_section=1; next }
+        /^\[/ { in_section=0 }
+        in_section && /^sleepScreenFolder=/ {
+            sub(/^sleepScreenFolder=/, "")
+            print
+            exit
+        }
+    ' "$CONF"
+}
+
+choose_image() {
+    mkdir -p "$ROOT"
+
+    folder="$(read_folder)"
+    case "$folder" in
+        ""|*/*|.*) dir="$ROOT" ;;
+        *) dir="$ROOT/$folder" ;;
+    esac
+
+    if [ ! -d "$dir" ]; then
+        dir="$ROOT"
+    fi
+
+    chosen="$(find "$dir" -maxdepth 1 -type f -iname '*.png' | awk 'BEGIN { srand() } { files[++n]=$0 } END { if (n > 0) print files[int(rand() * n) + 1] }')"
+
+    if [ -n "$chosen" ]; then
+        printf '%s\n' "$chosen" > "$OUT"
+    else
+        rm -f "$OUT"
+    fi
+}
+
+if [ "${1:-}" = "--once" ]; then
+    choose_image
+    exit 0
+fi
+
+choose_image
+
+if [ -f "$PID" ]; then
+    old_pid="$(cat "$PID" 2>/dev/null || true)"
+    if [ -n "$old_pid" ] && kill -0 "$old_pid" 2>/dev/null; then
+        exit 0
+    fi
+fi
+
+(
+    while :; do
+        sleep "$INTERVAL"
+        choose_image
+    done
+) &
+echo "$!" > "$PID"

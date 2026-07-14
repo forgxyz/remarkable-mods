@@ -13,12 +13,28 @@ AFFECT [[15136737896827182809]]
     REBUILD [[16364404249624396525]]
     LOCATE BEFORE STREAM \ ~&7083121450889&~ \
     INSERT {
-		~&197091758&~ ~&214622615378&~ = sleepScreens.~&214622615378&~;
-		~&5972376&~ (~&214622615378&~ > 0) {
-			~&214622607920&~ ~&214629676161&~ = ~&6502909715&~.~&214626058827&~(~&6502909715&~.random() * ~&214622615378&~);
-			~&6504167510&~ = sleepScreens.~&197086313&~(~&214629676161&~, "fileUrl");
-		}
-	}
+        var chosen = "";
+        try {
+            var xhr = new XMLHttpRequest();
+            xhr.open("GET", "file:///home/root/sleepScreens/.chosen", false);
+            xhr.send();
+            chosen = xhr.responseText;
+            while (chosen.length > 0 && (chosen.charAt(chosen.length - 1) === "\r" || chosen.charAt(chosen.length - 1) === "\n")) {
+                chosen = chosen.substr(0, chosen.length - 1);
+            }
+        } catch (e) {
+            chosen = "";
+        }
+        ~&5972376&~ (chosen && chosen !== "") {
+            ~&6504167510&~ = chosen.indexOf("file://") === 0 ? chosen : "file://" + chosen;
+        } else {
+            ~&197091758&~ ~&214622615378&~ = sleepScreens.~&214622615378&~;
+            ~&5972376&~ (~&214622615378&~ > 0) {
+                ~&214622607920&~ ~&214629676161&~ = ~&6502909715&~.~&214626058827&~(~&6502909715&~.random() * ~&214622615378&~);
+                ~&6504167510&~ = sleepScreens.~&197086313&~(~&214629676161&~, "fileUrl");
+            }
+        }
+    }
     END REBUILD
     END TRAVERSE
     TRAVERSE ?#[[16041628731068125427]]
