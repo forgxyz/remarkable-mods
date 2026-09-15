@@ -41,15 +41,15 @@ xovi QMD extensions for randomizing the reMarkable sleep screen, with an on-devi
 
 ```sh
 scp ingatellentSettings.qmd sleepScreenFolderPicker.qmd randomSleepScreen-withSubdirs.qmd root@10.11.99.1:/home/root/xovi/exthome/qt-resource-rebuilder/
-scp pre-start root@10.11.99.1:/home/root/xovi/scripts/pre-start/random-sleep-screen
-ssh root@10.11.99.1 'chmod +x /home/root/xovi/scripts/pre-start/random-sleep-screen'
+scp pre-start root@10.11.99.1:/home/root/xovi/scripts/pre-start/random-sleep-screen.sh
+ssh root@10.11.99.1 'chmod +x /home/root/xovi/scripts/pre-start/random-sleep-screen.sh'
 ```
 
 After copying QMD changes, run **Rebuild Hashtable** in reManager and restart xochitl
 or reboot. The hook is started by xovi on startup; to restart it manually:
 
 ```sh
-ssh root@10.11.99.1 'old="$(cat /tmp/random-sleep-screen-picker.pid 2>/dev/null || true)"; [ -n "$old" ] && kill "$old" 2>/dev/null || true; /home/root/xovi/scripts/pre-start/random-sleep-screen'
+ssh root@10.11.99.1 'old="$(cat /tmp/random-sleep-screen-picker.pid 2>/dev/null || true)"; [ -n "$old" ] && kill "$old" 2>/dev/null || true; /home/root/xovi/scripts/pre-start/random-sleep-screen.sh'
 ```
 
 ## Dependencies
